@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ==========================================
+   SPORTS STORE — PREMIUM DESIGN SYSTEM
+   Nike/Adidas inspired: Black, White, Red
+   ========================================== */
+
+@theme {
+  /* Brand Colors — Minimalist Premium Light Mode */
+  --color-brand-black: #fafafa;         /* Clean White Background */
+  --color-brand-dark: #f4f4f5;          /* Zinc-100 soft gray panels */
+  --color-brand-gray-900: #ffffff;      /* Pure White Card Background */
+  --color-brand-gray-800: #e4e4e7;      /* Soft borders */
+  --color-brand-gray-700: #d4d4d8;      
+  --color-brand-gray-600: #a1a1aa;      
+  --color-brand-gray-500: #71717a;      /* Medium gray text labels */
+  --color-brand-gray-400: #52525b;      
+  --color-brand-gray-300: #3f3f46;      
+  --color-brand-gray-200: #27272a;      
+  --color-brand-gray-100: #18181b;      
+  --color-brand-white: #09090b;         /* Zinc-950 deep charcoal text */
+  --color-brand-red: #e11d48;           /* Red Accent */
+  --color-brand-red-hover: #be123c;
+  --color-brand-red-light: #fee2e2;
+
+  /* Functional Colors */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Font Family */
+  --font-heading: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================
+   BASE STYLES
+   ========================================== */
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-brand-black);
+  color: var(--color-brand-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================
+   SCROLLBAR STYLING
+   ========================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brand-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-gray-700);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-gray-600);
+}
+
+/* ==========================================
+   SELECTION STYLING
+   ========================================== */
+
+::selection {
+  background-color: var(--color-brand-red);
+  color: white;
+}
+
+/* ==========================================
+   CUSTOM ANIMATIONS
+   ========================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-red {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(225, 29, 72, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s ease-in forwards;
+}
+
+.animate-pulse-red {
+  animation: pulse-red 2s infinite;
+}
+
+/* ==========================================
+   SKELETON LOADING
+   ========================================== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-gray-800) 25%,
+    var(--color-brand-gray-700) 50%,
+    var(--color-brand-gray-800) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ==========================================
+   GLASSMORPHISM CARDS
+   ========================================== */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(9, 9, 11, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(9, 9, 11, 0.05);
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(9, 9, 11, 0.05);
+  border-radius: 12px;
+}
+
+/* ==========================================
+   BUTTON STYLES
+   ========================================== */
+
+.btn-primary {
+  background-color: var(--color-brand-red);
+  color: white;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-brand-red-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-brand-white);
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 4px;
+  border: 2px solid var(--color-brand-white);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 14px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-brand-white);
+  color: var(--color-brand-black);
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   PRODUCT CARD HOVER EFFECTS
+   ========================================== */
+
+.product-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.product-card .product-image {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.08);
+}
+
+/* ==========================================
+   BADGE STYLES
+   ========================================== */
+
+.badge-sale {
+  background-color: var(--color-brand-red);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-new {
+  background-color: var(--color-brand-white);
+  color: var(--color-brand-black);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================
+   FORM STYLES
+   ========================================== */
+
+.form-input {
+  width: 100%;
+  background-color: var(--color-brand-gray-900);
+  border: 1px solid var(--color-brand-gray-700);
+  color: var(--color-brand-white);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--color-brand-red);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--color-brand-gray-500);
+}
+
+/* ==========================================
+   DIVIDER
+   ========================================== */
+
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-brand-gray-700),
+    transparent
+  );
+}
