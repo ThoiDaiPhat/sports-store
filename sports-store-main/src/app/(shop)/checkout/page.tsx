@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ShoppingBag, MapPin, CreditCard, CheckCircle, LogIn, Sparkles, X, QrCode, Landmark, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -447,7 +448,13 @@ export default function CheckoutPage() {
                   >
                     <div className="w-12 h-12 bg-brand-gray-900 rounded-lg shrink-0 overflow-hidden flex items-center justify-center border border-brand-gray-800">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <ShoppingBag size={14} className="text-brand-gray-600" />
                       )}
@@ -584,9 +591,11 @@ export default function CheckoutPage() {
 
                 {/* Real Dynamic VietQR Code */}
                 <div className="my-6 p-3 bg-white rounded-lg inline-block shadow-inner relative group border border-brand-gray-200">
-                  <img
+                  <Image
                     src={`https://img.vietqr.io/image/${bankId}-${bankAccount}-compact2.png?amount=${finalTotal}&addInfo=SPORTSTORE%20PAY&accountName=${encodeURIComponent(bankName)}`}
                     alt="VietQR Code"
+                    width={192}
+                    height={192}
                     className="w-48 h-48 mx-auto object-contain"
                   />
                 </div>

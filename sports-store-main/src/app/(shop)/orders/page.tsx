@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ShoppingBag, ArrowLeft, Calendar, ShieldCheck, MapPin, Truck, CheckCircle2, XCircle } from "lucide-react";
+import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
@@ -47,6 +48,7 @@ const statusConfig = {
 export default function OrdersHistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -62,6 +64,32 @@ export default function OrdersHistoryPage() {
       toast.error("Lỗi kết nối cơ sở dữ liệu");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) {
+      return;
+    }
+
+    setCancellingId(orderId);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        toast.success("Hủy đơn hàng thành công!");
+        fetchOrders();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Không thể hủy đơn hàng");
+      }
+    } catch (error) {
+      console.error("Lỗi hủy đơn hàng:", error);
+      toast.error("Không thể kết nối máy chủ");
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -160,7 +188,13 @@ export default function OrdersHistoryPage() {
                         <div key={item.id} className="py-4 flex gap-4 items-center">
                           <div className="w-16 h-16 bg-brand-gray-900 rounded-lg overflow-hidden border border-brand-gray-800 flex items-center justify-center shrink-0">
                             {image ? (
-                              <img src={image} alt="" className="w-full h-full object-cover" />
+                              <Image
+                                src={image}
+                                alt={item.product?.name || "Product"}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <ShoppingBag size={20} className="text-brand-gray-600" />
                             )}
@@ -277,9 +311,20 @@ export default function OrdersHistoryPage() {
                       <p>Người nhận: {order.fullName} - {order.phone}</p>
                       <p className="truncate max-w-[300px]">Đ/C: {order.address}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-brand-gray-500">Tổng thanh toán</p>
-                      <p className="text-lg font-bold text-brand-red">{formatPrice(order.totalAmount)}</p>
+                    <div className="flex items-center gap-4 ml-auto">
+                      {order.status === "PENDING" && (
+                        <button
+                          onClick={() => handleCancelOrder(order.id)}
+                          disabled={cancellingId === order.id}
+                          className="px-4 py-2 text-xs font-semibold text-rose-500 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition-all disabled:opacity-50"
+                        >
+                          {cancellingId === order.id ? "Đang hủy..." : "Hủy đơn hàng"}
+                        </button>
+                      )}
+                      <div className="text-right">
+                        <p className="text-xs text-brand-gray-500">Tổng thanh toán</p>
+                        <p className="text-lg font-bold text-brand-red">{formatPrice(order.totalAmount)}</p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

@@ -297,19 +297,43 @@ async function main() {
     },
   ];
 
+  // 1. Delete all variants first to start clean
+  await prisma.productVariant.deleteMany({});
+
   for (const product of products) {
-    await prisma.product.upsert({
+    const dbProduct = await prisma.product.upsert({
       where: { slug: product.slug },
       update: {
         images: product.images,
       },
       create: product,
     });
+
+    // Generate variants for this product
+    const sizes = typeof product.sizes === "string" ? JSON.parse(product.sizes) : product.sizes;
+    const colors = typeof product.colors === "string" ? JSON.parse(product.colors) : product.colors;
+
+    if (Array.isArray(sizes) && Array.isArray(colors)) {
+      for (const size of sizes) {
+        for (const color of colors) {
+          const sku = `${product.slug}-${size}-${color}`.toLowerCase().replace(/\s+/g, "-");
+          await prisma.productVariant.create({
+            data: {
+              productId: dbProduct.id,
+              size,
+              color,
+              sku,
+              stock: Math.floor(Math.random() * 20) + 10, // 10 to 29 in stock
+            },
+          });
+        }
+      }
+    }
   }
-  console.log("✅ Cập nhật", products.length, "sản phẩm mẫu với ảnh Unsplash");
+  console.log("✅ Cập nhật", products.length, "sản phẩm mẫu và các biến thể");
 
   // ==========================================
-  // 4. Tạo mã giảm giá mẫu (Coupons)
+  // 4. Tạo mã giảm giá mẫu (Coupons) với các ràng buộc mới
   // ==========================================
   const coupons = [
     {
@@ -317,18 +341,27 @@ async function main() {
       discountPercent: 10,
       expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 năm
       isActive: true,
+      minOrderAmount: 200000, // Đơn tối thiểu 200k
+      maxDiscountAmount: 100000, // Giảm tối đa 100k
+      usageLimit: 100,
     },
     {
       code: "FREESHIP",
       discountPercent: 15,
       expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       isActive: true,
+      minOrderAmount: 500000, // Đơn tối thiểu 500k
+      maxDiscountAmount: 50000, // Giảm tối đa 50k
+      usageLimit: 200,
     },
     {
       code: "WELCOME5",
       discountPercent: 5,
       expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       isActive: true,
+      minOrderAmount: 0,
+      maxDiscountAmount: null,
+      usageLimit: 1000,
     },
   ];
 
@@ -339,6 +372,9 @@ async function main() {
         discountPercent: coupon.discountPercent,
         expiryDate: coupon.expiryDate,
         isActive: coupon.isActive,
+        minOrderAmount: coupon.minOrderAmount,
+        maxDiscountAmount: coupon.maxDiscountAmount,
+        usageLimit: coupon.usageLimit,
       },
       create: coupon,
     });
@@ -354,7 +390,11 @@ async function main() {
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
 
-  const dbProducts = await prisma.product.findMany();
+  const dbProducts = await prisma.product.findMany({
+    include: {
+      variants: true,
+    },
+  });
   const dbUser = await prisma.user.findFirst({ where: { email: "user@sportstore.com" } });
 
   if (dbUser && dbProducts.length > 0) {
@@ -388,30 +428,34 @@ async function main() {
 
       for (let j = 0; j < numOrders; j++) {
         const numItems = Math.floor(Math.random() * 2) + 1;
-        const selectedProducts = [];
+        const selectedProducts: typeof dbProducts = [];
         const shuff = [...dbProducts].sort(() => 0.5 - Math.random());
         for (let k = 0; k < numItems; k++) {
           selectedProducts.push(shuff[k]);
         }
 
         let totalAmount = 0;
-        const orderItemsData = selectedProducts.map(p => {
+        const orderItemsData = [];
+
+        for (const p of selectedProducts) {
           const qty = Math.floor(Math.random() * 2) + 1;
-          const sizes = typeof p.sizes === "string" ? JSON.parse(p.sizes) : p.sizes;
-          const colors = typeof p.colors === "string" ? JSON.parse(p.colors) : p.colors;
-          const size = Array.isArray(sizes) && sizes.length > 0 ? sizes[Math.floor(Math.random() * sizes.length)] : "40";
-          const color = Array.isArray(colors) && colors.length > 0 ? colors[Math.floor(Math.random() * colors.length)] : "Đen";
+          const variant = p.variants[Math.floor(Math.random() * p.variants.length)];
           
+          if (!variant) continue;
+
           totalAmount += p.price * qty;
 
-          return {
+          orderItemsData.push({
             productId: p.id,
+            variantId: variant.id,
             quantity: qty,
             price: p.price,
-            size,
-            color,
-          };
-        });
+            size: variant.size,
+            color: variant.color,
+          });
+        }
+
+        if (orderItemsData.length === 0) continue;
 
         const discountAmount = Math.round(totalAmount * 0.05);
         const finalAmount = totalAmount - discountAmount;

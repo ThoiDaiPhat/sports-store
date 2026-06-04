@@ -17,15 +17,27 @@ import {
   Send,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { formatPrice, getDiscountPercentage } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import RelatedProducts from "@/components/shop/RelatedProducts";
+import type { Product } from "@/types";
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user?: {
+    name: string;
+  } | null;
+}
 
 interface ProductDetailClientProps {
-  initialProduct: any;
+  initialProduct: Product;
 }
 
 export default function ProductDetailClient({ initialProduct }: ProductDetailClientProps) {
@@ -33,7 +45,7 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
   const addItem = useCartStore((state) => state.addItem);
   const { toggleItem: toggleFavorite, hasItem, isAuthenticated } = useWishlist();
 
-  const [product] = useState<any>(initialProduct);
+  const [product] = useState<Product>(initialProduct);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState(
     initialProduct.colors && initialProduct.colors.length > 0
@@ -45,8 +57,34 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
 
   const isFavorite = product ? hasItem(product.id) : false;
 
+  // Resolve active variant, stock, and out of stock status
+  const hasSizes = product.sizes && product.sizes.length > 0;
+  const hasColors = product.colors && product.colors.length > 0;
+
+  const isVariantSelected = (!hasSizes || selectedSize) && (!hasColors || selectedColor);
+
+  const activeVariant = isVariantSelected
+    ? product.variants?.find(
+        (v) =>
+          (!hasSizes || v.size === selectedSize) &&
+          (!hasColors || v.color === selectedColor)
+      )
+    : undefined;
+
+  const displayStock = activeVariant !== undefined ? activeVariant.stock : product.stock;
+  const isOutOfStock = activeVariant !== undefined ? activeVariant.stock === 0 : product.stock === 0;
+
+  // Reset or cap quantity to displayStock when variant changes
+  useEffect(() => {
+    if (displayStock > 0 && quantity > displayStock) {
+      setQuantity(displayStock);
+    } else if (displayStock === 0) {
+      setQuantity(1);
+    }
+  }, [displayStock, quantity]);
+
   // Reviews states
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
@@ -75,15 +113,18 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
       return;
     }
 
+    const variantId = activeVariant?.id || "";
+
     addItem({
       productId: product.id,
+      variantId,
       name: product.name,
       price: product.price,
       image: product.images && product.images[0] ? product.images[0] : "",
       size: selectedSize || "One Size",
       color: selectedColor || "N/A",
       quantity,
-      stock: product.stock,
+      stock: displayStock,
     });
 
     toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`);
@@ -180,9 +221,12 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
           {/* Main Image */}
           <div className="aspect-square bg-brand-gray-900 rounded-xl overflow-hidden flex items-center justify-center mb-4 relative border border-brand-gray-800">
             {product.images && product.images[activeImageIndex] ? (
-              <img
+              <Image
                 src={product.images[activeImageIndex]}
                 alt={product.name}
+                width={600}
+                height={600}
+                priority
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -208,7 +252,13 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
                       : "border-brand-gray-800 hover:border-brand-gray-600"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${i + 1}`}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -331,19 +381,25 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
                 type="button"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-10 h-10 bg-brand-gray-800 hover:bg-brand-gray-700 rounded-lg flex items-center justify-center transition-colors"
+                disabled={isOutOfStock}
               >
                 <Minus size={16} />
               </button>
               <span className="w-12 text-center font-semibold">{quantity}</span>
               <button
                 type="button"
-                onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
                 className="w-10 h-10 bg-brand-gray-800 hover:bg-brand-gray-700 rounded-lg flex items-center justify-center transition-colors"
+                disabled={isOutOfStock || quantity >= displayStock}
               >
                 <Plus size={16} />
               </button>
               <span className="text-sm text-brand-gray-500">
-                Còn {product.stock} sản phẩm trong kho
+                {isOutOfStock ? (
+                  <span className="text-brand-red font-semibold">Hết hàng</span>
+                ) : (
+                  <>Còn {displayStock} sản phẩm trong kho</>
+                )}
               </span>
             </div>
           </div>
@@ -352,11 +408,11 @@ export default function ProductDetailClient({ initialProduct }: ProductDetailCli
           <div className="flex gap-3 mb-8">
             <button
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={isOutOfStock}
               className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <ShoppingBag size={18} />
-              {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
+              {isOutOfStock ? "Hết hàng" : "Thêm vào giỏ hàng"}
             </button>
             <button
               onClick={handleToggleFavorite}

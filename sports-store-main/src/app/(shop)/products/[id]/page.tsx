@@ -61,6 +61,7 @@ export default async function ProductDetailPage({ params }: Props) {
           slug: true,
         },
       },
+      variants: true,
     },
   });
 

@@ -57,18 +57,53 @@ export async function GET(request: Request) {
       orderBy = { createdAt: "desc" };
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      orderBy,
-      include: {
-        category: {
-          select: {
-            name: true,
-            slug: true,
+    const page = searchParams.get("page");
+    const limit = searchParams.get("limit");
+
+    let products;
+    let total = 0;
+    let totalPages = 1;
+    const pageNumber = page ? parseInt(page) : null;
+    const limitNumber = limit ? parseInt(limit) : null;
+
+    if (pageNumber || limitNumber) {
+      const p = pageNumber || 1;
+      const l = limitNumber || 12;
+      const skip = (p - 1) * l;
+
+      total = await prisma.product.count({ where });
+      totalPages = Math.ceil(total / l);
+
+      products = await prisma.product.findMany({
+        where,
+        orderBy,
+        skip,
+        take: l,
+        include: {
+          category: {
+            select: {
+              name: true,
+              slug: true,
+            },
           },
+          variants: true,
         },
-      },
-    });
+      });
+    } else {
+      products = await prisma.product.findMany({
+        where,
+        orderBy,
+        include: {
+          category: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+          variants: true,
+        },
+      });
+    }
 
     // Parse JSON sizes, colors, images
     const parsedProducts = products.map((product) => ({
@@ -77,6 +112,16 @@ export async function GET(request: Request) {
       colors: typeof product.colors === "string" ? JSON.parse(product.colors) : product.colors,
       images: typeof product.images === "string" ? JSON.parse(product.images) : product.images,
     }));
+
+    if (pageNumber || limitNumber) {
+      return NextResponse.json({
+        products: parsedProducts,
+        total,
+        totalPages,
+        page: pageNumber || 1,
+        limit: limitNumber || 12,
+      });
+    }
 
     return NextResponse.json(parsedProducts);
   } catch (error) {

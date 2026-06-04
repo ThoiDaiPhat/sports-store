@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
@@ -223,9 +224,11 @@ export default function AdminProductsPage() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-brand-gray-800 rounded-lg shrink-0 overflow-hidden flex items-center justify-center">
                             {product.images && product.images[0] ? (
-                              <img
+                              <Image
                                 src={product.images[0]}
                                 alt={product.name}
+                                width={40}
+                                height={40}
                                 className="w-full h-full object-cover"
                               />
                             ) : (

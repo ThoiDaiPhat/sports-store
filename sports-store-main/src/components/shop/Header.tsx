@@ -12,6 +12,7 @@ import {
   X,
   Heart,
 } from "lucide-react";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { useSession, signOut } from "next-auth/react";
@@ -198,6 +199,15 @@ export default function Header() {
                           )}
 
                           <Link
+                            href="/profile"
+                            onClick={() => setIsUserDropdownOpen(false)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-brand-gray-300 hover:text-white hover:bg-brand-gray-800 transition-colors"
+                          >
+                            <User size={14} />
+                            Tài khoản cá nhân
+                          </Link>
+
+                          <Link
                             href="/orders"
                             onClick={() => setIsUserDropdownOpen(false)}
                             className="flex items-center gap-2 px-4 py-2 text-sm text-brand-gray-300 hover:text-white hover:bg-brand-gray-800 transition-colors"
@@ -318,9 +328,11 @@ export default function Header() {
                               >
                                 <div className="w-10 h-10 bg-brand-dark rounded overflow-hidden shrink-0 border border-brand-gray-800">
                                   {item.image ? (
-                                    <img
+                                    <Image
                                       src={item.image}
-                                      alt=""
+                                      alt={item.name || "Product"}
+                                      width={40}
+                                      height={40}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (

@@ -23,6 +23,15 @@ const sortOptions = [
   { value: "price_desc", label: "Giá cao → thấp" },
 ];
 
+const ProductSkeleton = () => (
+  <div className="glass-card p-4 flex flex-col h-full border border-brand-gray-800 rounded-xl overflow-hidden">
+    <div className="aspect-square bg-brand-gray-800/40 rounded-lg animate-pulse w-full" />
+    <div className="w-1/3 h-3 bg-brand-gray-800/40 rounded animate-pulse mt-4" />
+    <div className="w-3/4 h-5 bg-brand-gray-800/40 rounded animate-pulse mt-2" />
+    <div className="w-1/2 h-5 bg-brand-gray-800/40 rounded animate-pulse mt-3" />
+  </div>
+);
+
 function ProductsCatalog() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,18 +44,27 @@ function ProductsCatalog() {
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchProducts = async () => {
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const fetchProducts = async (currentPage = page) => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
       if (categoryParam) queryParams.append("category", categoryParam);
       if (searchParam) queryParams.append("search", searchParam);
       if (sortBy) queryParams.append("sort", sortBy);
+      queryParams.append("page", currentPage.toString());
+      queryParams.append("limit", "12");
 
       const res = await fetch(`/api/products?${queryParams.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        setProducts(data);
+        setProducts(data.products || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalProducts(data.total || 0);
       } else {
         toast.error("Không thể tải danh sách sản phẩm");
       }
@@ -59,8 +77,17 @@ function ProductsCatalog() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    setPage(1);
+    fetchProducts(1);
   }, [categoryParam, searchParam, sortBy]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      fetchProducts(newPage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleCategoryChange = (catValue: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -92,7 +119,7 @@ function ProductsCatalog() {
             : "Tất cả sản phẩm"}
         </h1>
         <p className="text-brand-gray-400 mt-2">
-          {products.length} sản phẩm
+          {totalProducts} sản phẩm
         </p>
       </motion.div>
 
@@ -185,14 +212,53 @@ function ProductsCatalog() {
 
       {/* Product Grid */}
       {loading ? (
-        <div className="flex items-center justify-center min-h-[40vh]">
-          <div className="w-10 h-10 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <ProductSkeleton key={idx} />
+          ))}
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-          {products.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
+        <div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {products.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+
+          {/* Pagination UI */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12 border-t border-brand-gray-800 pt-8">
+              <button
+                disabled={page === 1}
+                onClick={() => handlePageChange(page - 1)}
+                className="px-4 py-2 rounded-lg border border-brand-gray-700 text-sm text-brand-gray-300 hover:border-brand-gray-500 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Trước
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
+                    page === p
+                      ? "bg-brand-red text-white"
+                      : "border border-brand-gray-700 text-brand-gray-400 hover:border-brand-gray-500 hover:text-white"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => handlePageChange(page + 1)}
+                className="px-4 py-2 rounded-lg border border-brand-gray-700 text-sm text-brand-gray-300 hover:border-brand-gray-500 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sau
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center py-20">

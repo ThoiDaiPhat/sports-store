@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 
@@ -76,9 +77,11 @@ export default function CartPage() {
               {/* Product Image */}
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-brand-gray-900 rounded-lg overflow-hidden flex items-center justify-center shrink-0 relative border border-brand-gray-800">
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
+                    width={128}
+                    height={128}
                     className="w-full h-full object-cover"
                   />
                 ) : (

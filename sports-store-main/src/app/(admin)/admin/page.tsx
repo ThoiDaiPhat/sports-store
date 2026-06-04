@@ -7,12 +7,33 @@ import {
   ShoppingCart,
   Package,
   Users,
-  TrendingUp,
   ArrowUpRight,
   Sparkles,
 } from "lucide-react";
 import { formatPrice, formatDate } from "@/lib/utils";
 import Link from "next/link";
+
+interface DashboardStats {
+  totalRevenue: number;
+  totalOrders: number;
+  totalProducts: number;
+  totalCustomers: number;
+  weeklyRevenue: { label: string; value: number }[];
+  recentOrders: {
+    id: string;
+    fullName: string;
+    totalAmount: number;
+    status: string;
+    createdAt: string;
+  }[];
+  activeCoupons: {
+    id: string;
+    code: string;
+    discountPercent: number;
+    expiryDate: string;
+    isActive: boolean;
+  }[];
+}
 
 const statusMap: Record<string, { label: string; color: string }> = {
   PENDING: { label: "Chờ xử lý", color: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
@@ -23,7 +44,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default function AdminDashboard() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,25 +84,25 @@ export default function AdminDashboard() {
 
   const stats = [
     {
-      title: "Doanh thu",
+      title: "Tổng doanh thu",
       value: formatPrice(totalRevenue),
-      change: "+12.5%",
+      subtext: "Hệ thống ghi nhận",
       icon: DollarSign,
       color: "text-green-400",
       bg: "bg-green-400/10 border-green-400/20",
     },
     {
-      title: "Đơn hàng",
+      title: "Tổng đơn hàng",
       value: totalOrders.toString(),
-      change: "+8.2%",
+      subtext: "Đã hoàn thành & chờ",
       icon: ShoppingCart,
       color: "text-blue-400",
       bg: "bg-blue-400/10 border-blue-400/20",
     },
     {
-      title: "Sản phẩm",
+      title: "Số sản phẩm",
       value: totalProducts.toString(),
-      change: "+3 mới",
+      subtext: "Đang hiển thị",
       icon: Package,
       color: "text-orange-400",
       bg: "bg-orange-400/10 border-orange-400/20",
@@ -89,7 +110,7 @@ export default function AdminDashboard() {
     {
       title: "Khách hàng",
       value: totalCustomers.toString(),
-      change: "+15.3%",
+      subtext: "Tài khoản người dùng",
       icon: Users,
       color: "text-purple-400",
       bg: "bg-purple-400/10 border-purple-400/20",
@@ -109,7 +130,7 @@ export default function AdminDashboard() {
         { label: "Chủ nhật", value: 0 },
       ];
 
-  const maxChartValue = Math.max(...chartData.map((d: any) => d.value));
+  const maxChartValue = Math.max(...chartData.map((d) => d.value));
 
   return (
     <div>
@@ -138,10 +159,9 @@ export default function AdminDashboard() {
               >
                 <stat.icon size={20} className={stat.color} />
               </div>
-              <div className="flex items-center gap-1 text-xs text-green-400 bg-green-500/5 px-2 py-0.5 rounded border border-green-500/10">
-                <TrendingUp size={12} />
-                {stat.change}
-              </div>
+              <span className="text-[10px] text-brand-gray-400 bg-brand-gray-900 border border-brand-gray-800 px-2 py-0.5 rounded font-medium">
+                {stat.subtext}
+              </span>
             </div>
             <p className="text-2xl font-bold font-[var(--font-heading)] mt-3">
               {stat.value}
@@ -171,7 +191,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="relative h-64 w-full flex items-end justify-between px-2 pt-6">
-            {chartData.map((item: any, i: number) => {
+            {chartData.map((item, i) => {
               const heightPercent = maxChartValue > 0 ? (item.value / maxChartValue) * 80 : 0;
               return (
                 <div key={item.label} className="flex flex-col items-center justify-end h-full flex-1 group relative">
@@ -208,7 +228,7 @@ export default function AdminDashboard() {
             
             <div className="space-y-3">
               {activeCoupons && activeCoupons.length > 0 ? (
-                activeCoupons.map((coupon: any) => (
+                activeCoupons.map((coupon) => (
                   <div
                     key={coupon.id}
                     className="p-3 bg-brand-gray-900 border border-brand-gray-800 rounded-lg flex items-center justify-between"
@@ -216,13 +236,7 @@ export default function AdminDashboard() {
                     <div>
                       <p className="text-xs font-bold text-brand-red">{coupon.code}</p>
                       <p className="text-[10px] text-brand-gray-500 mt-0.5">
-                        {coupon.code === "SALEOFF10"
-                          ? "Giảm 10% đơn hàng"
-                          : coupon.code === "FREESHIP"
-                          ? "Giảm 15% giao hàng nhanh"
-                          : coupon.code === "WELCOME5"
-                          ? "Giảm 5% cho thành viên mới"
-                          : `Giảm ${coupon.discountPercent}% cho tất cả đơn hàng`}
+                        {`Giảm ${coupon.discountPercent}% cho tất cả đơn hàng`}
                       </p>
                     </div>
                     <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
@@ -291,7 +305,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order: any, i: number) => (
+                {recentOrders.map((order, i) => (
                   <motion.tr
                     key={order.id}
                     initial={{ opacity: 0 }}

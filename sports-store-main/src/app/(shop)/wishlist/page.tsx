@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Heart, Trash2, ShoppingBag, ArrowLeft, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { useWishlist } from "@/store/wishlist";
 import { formatPrice } from "@/lib/utils";
 
@@ -108,9 +109,11 @@ export default function WishlistPage() {
               {/* Product Image */}
               <div className="aspect-square bg-brand-gray-900 overflow-hidden flex items-center justify-center shrink-0 relative border-b border-brand-gray-800">
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
+                    width={300}
+                    height={300}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (

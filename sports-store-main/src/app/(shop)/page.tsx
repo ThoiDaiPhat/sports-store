@@ -70,6 +70,15 @@ const features = [
   },
 ];
 
+const ProductSkeleton = () => (
+  <div className="glass-card p-4 flex flex-col h-full border border-brand-gray-800 rounded-xl overflow-hidden">
+    <div className="aspect-square bg-brand-gray-800/40 rounded-lg animate-pulse w-full" />
+    <div className="w-1/3 h-3 bg-brand-gray-800/40 rounded animate-pulse mt-4" />
+    <div className="w-3/4 h-5 bg-brand-gray-800/40 rounded animate-pulse mt-2" />
+    <div className="w-1/2 h-5 bg-brand-gray-800/40 rounded animate-pulse mt-3" />
+  </div>
+);
+
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -204,8 +213,10 @@ export default function HomePage() {
           </motion.div>
 
           {loading ? (
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <ProductSkeleton key={idx} />
+              ))}
             </div>
           ) : featuredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">

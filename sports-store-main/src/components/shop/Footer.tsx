@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   Facebook,
@@ -8,8 +11,21 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Footer() {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim() || !newsletterEmail.includes("@")) {
+      toast.error("Vui lòng nhập email hợp lệ!");
+      return;
+    }
+    toast.success("Cảm ơn bạn đã đăng ký nhận tin! 🎉");
+    setNewsletterEmail("");
+  };
+
   return (
     <footer className="bg-brand-dark border-t border-brand-gray-800">
       {/* Newsletter Section */}
@@ -24,16 +40,18 @@ export default function Footer() {
                 Nhận thông tin ưu đãi và sản phẩm mới nhất
               </p>
             </div>
-            <div className="flex w-full md:w-auto gap-2">
+            <form onSubmit={handleNewsletter} className="flex w-full md:w-auto gap-2">
               <input
                 type="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Email của bạn..."
                 className="form-input flex-1 md:w-80"
               />
-              <button className="btn-primary whitespace-nowrap">
+              <button type="submit" className="btn-primary whitespace-nowrap">
                 Đăng ký
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

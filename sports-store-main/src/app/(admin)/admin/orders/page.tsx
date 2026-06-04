@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, Eye, Trash2, Edit, Search } from "lucide-react";
+import Image from "next/image";
 import { formatPrice, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
 
@@ -378,9 +379,11 @@ export default function AdminOrdersPage() {
                       <div key={item.id} className="flex gap-3 text-sm">
                         <div className="w-12 h-12 bg-brand-gray-800 rounded-lg shrink-0 overflow-hidden flex items-center justify-center">
                           {item.product.images && item.product.images[0] ? (
-                            <img
+                            <Image
                               src={item.product.images[0]}
                               alt={item.product.name}
+                              width={48}
+                              height={48}
                               className="w-full h-full object-cover"
                             />
                           ) : (

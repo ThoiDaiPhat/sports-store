@@ -1,3 +1,14 @@
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  size: string;
+  color: string;
+  sku: string;
+  stock: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +24,7 @@ export interface Product {
   isActive: boolean;
   categoryId: string;
   category?: Category;
+  variants?: ProductVariant[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +33,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  image: string | null;
+  image?: string | null;
   products?: Product[];
   _count?: {
     products: number;
@@ -57,11 +69,13 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
+  variantId: string;
   quantity: number;
   price: number;
   size: string;
   color: string;
   product?: Product;
+  variant?: ProductVariant;
 }
 
 export type OrderStatus =
@@ -74,6 +88,7 @@ export type OrderStatus =
 // Cart Types
 export interface CartItem {
   productId: string;
+  variantId: string;
   name: string;
   price: number;
   image: string;

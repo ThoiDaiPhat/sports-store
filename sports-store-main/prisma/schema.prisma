@@ -80,6 +80,7 @@ model Product {
   updatedAt     DateTime @updatedAt
 
   category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  variants   ProductVariant[]
   orderItems OrderItem[]
   reviews    Review[]
 
@@ -118,27 +119,33 @@ model OrderItem {
   id        String @id @default(cuid())
   orderId   String
   productId String
+  variantId String
   quantity  Int
   price     Float
   size      String
   color     String
 
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([productId])
+  @@index([variantId])
   @@map("order_items")
 }
 
 model Coupon {
-  id              String   @id @default(cuid())
-  code            String   @unique
-  discountPercent Int
-  expiryDate      DateTime
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  code              String   @unique
+  discountPercent   Int
+  expiryDate        DateTime
+  isActive          Boolean  @default(true)
+  minOrderAmount    Float    @default(0)
+  maxDiscountAmount Float?
+  usageLimit        Int      @default(9999)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("coupons")
 }
@@ -158,4 +165,21 @@ model Review {
   @@index([productId])
   @@index([userId])
   @@map("reviews")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  size      String
+  color     String
+  sku       String   @unique
+  stock     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@map("product_variants")
 }

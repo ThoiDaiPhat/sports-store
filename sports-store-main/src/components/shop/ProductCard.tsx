@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import Image from "next/image";
 import { formatPrice, getDiscountPercentage } from "@/lib/utils";
 import type { Product } from "@/types";
 import toast from "react-hot-toast";
@@ -27,15 +28,24 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const colors = product.colors as string[];
     const images = product.images as string[];
 
+    const defaultSize = sizes[0] || "M";
+    const defaultColor = colors[0] || "Đen";
+
+    const variant = product.variants?.find(
+      (v) => v.size === defaultSize && v.color === defaultColor
+    );
+    const variantId = variant?.id || "";
+
     addItem({
       productId: product.id,
+      variantId,
       name: product.name,
       price: product.price,
       image: images[0] || "/placeholder.jpg",
-      size: sizes[0] || "M",
-      color: colors[0] || "Đen",
+      size: defaultSize,
+      color: defaultColor,
       quantity: 1,
-      stock: product.stock,
+      stock: variant?.stock ?? product.stock,
     });
 
     toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`);
@@ -55,9 +65,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <div className="relative aspect-square overflow-hidden bg-brand-gray-800">
             {/* Product Image */}
             {images && images[0] ? (
-              <img
+              <Image
                 src={images[0]}
                 alt={product.name}
+                width={300}
+                height={300}
+                priority={index < 4}
                 className="product-image w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
