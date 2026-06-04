@@ -19,7 +19,7 @@ import {
   User,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
-import { useWishlistStore } from "@/store/wishlist";
+import { useWishlist } from "@/store/wishlist";
 import { formatPrice, getDiscountPercentage } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -28,8 +28,7 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const { data: session } = useSession();
   const addItem = useCartStore((state) => state.addItem);
-  const wishlistItems = useWishlistStore((state) => state.items);
-  const toggleFavorite = useWishlistStore((state) => state.toggleItem);
+  const { items: wishlistItems, toggleItem: toggleFavorite, hasItem, isAuthenticated } = useWishlist();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +37,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const isFavorite = product ? wishlistItems.some((i) => i.productId === product.id) : false;
+  const isFavorite = product ? hasItem(product.id) : false;
 
   // Reviews states
   const [reviews, setReviews] = useState<any[]>([]);
@@ -105,6 +104,10 @@ export default function ProductDetailPage() {
 
   const handleToggleFavorite = () => {
     if (!product) return;
+    if (!isAuthenticated) {
+      toast.error("Vui lòng đăng nhập để lưu sản phẩm yêu thích!");
+      return;
+    }
     toggleFavorite({
       productId: product.id,
       name: product.name,

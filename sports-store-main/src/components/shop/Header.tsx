@@ -13,7 +13,7 @@ import {
   Heart,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
-import { useWishlistStore } from "@/store/wishlist";
+import { useWishlist } from "@/store/wishlist";
 import { useSession, signOut } from "next-auth/react";
 import { LogOut, LayoutDashboard } from "lucide-react";
 
@@ -25,7 +25,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems);
-  const wishlistItems = useWishlistStore((state) => state.items);
+  const { items: wishlistItems } = useWishlist();
   const { data: session, status } = useSession();
 
   const [mounted, setMounted] = useState(false);

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Heart, Trash2, ShoppingBag, ArrowLeft, ExternalLink } from "lucide-react";
-import { useWishlistStore } from "@/store/wishlist";
+import { useWishlist } from "@/store/wishlist";
 import { formatPrice } from "@/lib/utils";
 
 export default function WishlistPage() {
-  const { items, removeItem } = useWishlistStore();
+  const { items, removeItem, isAuthenticated } = useWishlist();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,6 +19,31 @@ export default function WishlistPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-10 h-10 border-2 border-brand-red border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 bg-brand-gray-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-brand-gray-800">
+            <Heart size={32} className="text-brand-gray-500" />
+          </div>
+          <h2 className="text-2xl font-bold font-[var(--font-heading)] mb-2">
+            Yêu cầu đăng nhập
+          </h2>
+          <p className="text-brand-gray-400 mb-6">
+            Vui lòng đăng nhập để lưu trữ và quản lý danh sách sản phẩm yêu thích của bạn
+          </p>
+          <Link href="/login" className="btn-primary inline-flex items-center gap-2">
+            Đăng nhập ngay
+          </Link>
+        </motion.div>
       </div>
     );
   }
