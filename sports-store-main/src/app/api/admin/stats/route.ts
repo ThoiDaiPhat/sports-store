@@ -102,6 +102,19 @@ export async function GET(request: Request) {
       },
     });
 
+    // 6. Lấy danh sách các mã giảm giá đang hoạt động (isActive === true và chưa hết hạn)
+    const activeCoupons = await prisma.coupon.findMany({
+      where: {
+        isActive: true,
+        expiryDate: {
+          gte: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
     return NextResponse.json({
       totalRevenue,
       totalOrders,
@@ -109,6 +122,7 @@ export async function GET(request: Request) {
       totalCustomers,
       weeklyRevenue,
       recentOrders,
+      activeCoupons,
     });
   } catch (error) {
     console.error("❌ Lỗi lấy thống kê Admin:", error);

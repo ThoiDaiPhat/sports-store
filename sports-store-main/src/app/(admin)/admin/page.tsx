@@ -51,13 +51,14 @@ export default function AdminDashboard() {
     );
   }
 
-  const { totalRevenue, totalOrders, totalProducts, totalCustomers, weeklyRevenue, recentOrders } = data || {
+  const { totalRevenue, totalOrders, totalProducts, totalCustomers, weeklyRevenue, recentOrders, activeCoupons } = data || {
     totalRevenue: 0,
     totalOrders: 0,
     totalProducts: 0,
     totalCustomers: 0,
     weeklyRevenue: [],
     recentOrders: [],
+    activeCoupons: [],
   };
 
   const stats = [
@@ -206,29 +207,34 @@ export default function AdminDashboard() {
             <h2 className="text-lg font-bold font-[var(--font-heading)] mb-4">Hoạt động khuyến mãi</h2>
             
             <div className="space-y-3">
-              <div className="p-3 bg-brand-gray-900 border border-brand-gray-800 rounded-lg flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-brand-red">SALEOFF10</p>
-                  <p className="text-[10px] text-brand-gray-500 mt-0.5">Giảm 10% đơn hàng</p>
+              {activeCoupons && activeCoupons.length > 0 ? (
+                activeCoupons.map((coupon: any) => (
+                  <div
+                    key={coupon.id}
+                    className="p-3 bg-brand-gray-900 border border-brand-gray-800 rounded-lg flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-brand-red">{coupon.code}</p>
+                      <p className="text-[10px] text-brand-gray-500 mt-0.5">
+                        {coupon.code === "SALEOFF10"
+                          ? "Giảm 10% đơn hàng"
+                          : coupon.code === "FREESHIP"
+                          ? "Giảm 15% giao hàng nhanh"
+                          : coupon.code === "WELCOME5"
+                          ? "Giảm 5% cho thành viên mới"
+                          : `Giảm ${coupon.discountPercent}% cho tất cả đơn hàng`}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                      Đang chạy
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-brand-gray-500 text-xs">
+                  Không có mã giảm giá nào đang chạy.
                 </div>
-                <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">Đang chạy</span>
-              </div>
-
-              <div className="p-3 bg-brand-gray-900 border border-brand-gray-800 rounded-lg flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-brand-red">FREESHIP</p>
-                  <p className="text-[10px] text-brand-gray-500 mt-0.5">Giảm 15% giao hàng nhanh</p>
-                </div>
-                <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">Đang chạy</span>
-              </div>
-
-              <div className="p-3 bg-brand-gray-900 border border-brand-gray-800 rounded-lg flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-brand-red">WELCOME5</p>
-                  <p className="text-[10px] text-brand-gray-500 mt-0.5">Giảm 5% cho thành viên mới</p>
-                </div>
-                <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">Đang chạy</span>
-              </div>
+              )}
             </div>
           </div>
 
