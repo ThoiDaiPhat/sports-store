@@ -255,11 +255,11 @@ export default function Header() {
         <AnimatePresence>
           {isSearchOpen && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="border-t border-brand-gray-800 overflow-hidden"
+              className="border-t border-brand-gray-800 relative z-50 bg-brand-black"
             >
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <form
