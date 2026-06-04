@@ -129,6 +129,16 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Forgot Password Link */}
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-brand-red hover:text-brand-red-hover transition-colors font-medium"
+              >
+                Quên mật khẩu?
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}
