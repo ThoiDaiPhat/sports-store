@@ -112,34 +112,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
-            {/* Color Dots */}
-            <div className="flex gap-1.5 mt-3">
-              {(product.colors as string[]).slice(0, 4).map((color, i) => (
-                <div
-                  key={i}
-                  className="w-4 h-4 rounded-full border border-brand-gray-600"
-                  style={{
-                    backgroundColor:
-                      color === "Đen"
-                        ? "#1a1a1a"
-                        : color === "Trắng"
-                        ? "#e8e8e8"
-                        : color === "Đỏ"
-                        ? "#e11d48"
-                        : color === "Xám"
-                        ? "#6b6b6b"
-                        : color === "Xanh Navy"
-                        ? "#1e3a5f"
-                        : color === "Xanh"
-                        ? "#2563eb"
-                        : color === "Cam"
-                        ? "#f97316"
-                        : "#4a4a4a",
-                  }}
-                  title={color}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </Link>

@@ -19,6 +19,7 @@ import {
   User,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 import { formatPrice, getDiscountPercentage } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -27,6 +28,8 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const { data: session } = useSession();
   const addItem = useCartStore((state) => state.addItem);
+  const wishlistItems = useWishlistStore((state) => state.items);
+  const toggleFavorite = useWishlistStore((state) => state.toggleItem);
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +37,8 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+
+  const isFavorite = product ? wishlistItems.some((i) => i.productId === product.id) : false;
 
   // Reviews states
   const [reviews, setReviews] = useState<any[]>([]);
@@ -100,7 +104,13 @@ export default function ProductDetailPage() {
   };
 
   const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
+    if (!product) return;
+    toggleFavorite({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images && product.images[0] ? product.images[0] : "",
+    });
     if (!isFavorite) {
       toast.success(`Đã thêm "${product.name}" vào danh sách yêu thích!`);
     } else {
