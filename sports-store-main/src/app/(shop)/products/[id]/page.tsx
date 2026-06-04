@@ -34,6 +34,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Reviews states
   const [reviews, setReviews] = useState<any[]>([]);
@@ -96,6 +97,15 @@ export default function ProductDetailPage() {
     });
 
     toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`);
+  };
+
+  const handleToggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    if (!isFavorite) {
+      toast.success(`Đã thêm "${product.name}" vào danh sách yêu thích!`);
+    } else {
+      toast.success(`Đã xóa "${product.name}" khỏi danh sách yêu thích.`);
+    }
   };
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -372,8 +382,16 @@ export default function ProductDetailPage() {
               <ShoppingBag size={18} />
               {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
             </button>
-            <button className="w-12 h-12 border border-brand-gray-700 hover:border-brand-red rounded-lg flex items-center justify-center text-brand-gray-400 hover:text-brand-red transition-all">
-              <Heart size={20} />
+            <button
+              onClick={handleToggleFavorite}
+              className={`w-12 h-12 border rounded-lg flex items-center justify-center transition-all ${
+                isFavorite
+                  ? "border-brand-red bg-brand-red/5 text-brand-red"
+                  : "border-brand-gray-700 text-brand-gray-400 hover:border-brand-red hover:text-brand-red"
+              }`}
+              title={isFavorite ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
+            >
+              <Heart size={20} className={isFavorite ? "fill-brand-red" : ""} />
             </button>
           </div>
 

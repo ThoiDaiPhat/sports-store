@@ -332,6 +332,14 @@ h6 {
   color: var(--color-brand-gray-500);
 }
 
+.form-input.pl-12 {
+  padding-left: 3rem !important;
+}
+
+.form-input.pr-12 {
+  padding-right: 3rem !important;
+}
+
 /* ==========================================
    DIVIDER
    ========================================== */
