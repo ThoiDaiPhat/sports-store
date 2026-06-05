@@ -49,8 +49,8 @@ export default function RegisterPage() {
       if (!res.ok) {
         toast.error(data.error || "Đăng ký thất bại");
       } else {
-        toast.success("Đăng ký thành công! Vui lòng nhập mã OTP được gửi tới email của bạn.");
-        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+        router.push("/login");
       }
     } catch {
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
