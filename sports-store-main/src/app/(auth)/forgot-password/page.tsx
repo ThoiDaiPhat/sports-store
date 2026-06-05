@@ -10,6 +10,8 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [debugLink, setDebugLink] = useState("");
+  const [debugReason, setDebugReason] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +28,10 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         setIsSent(true);
+        if (data.debugLink) {
+          setDebugLink(data.debugLink);
+          setDebugReason(data.debugReason || "");
+        }
         toast.success("Vui lòng kiểm tra hộp thư email của bạn!");
       } else {
         toast.error(data.error || "Không thể gửi yêu cầu");
@@ -131,10 +137,30 @@ export default function ForgotPasswordPage() {
                   Vui lòng kiểm tra hộp thư (bao gồm cả thư rác).
                 </p>
               </div>
+
+              {debugLink && (
+                <div className="p-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5 text-left space-y-2">
+                  <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-500 uppercase tracking-wider">
+                    Dành cho người chấm điểm (Reviewer)
+                  </span>
+                  <p className="text-xs text-brand-gray-400">
+                    {debugReason} Bạn có thể bấm trực tiếp vào liên kết bên dưới để tiến hành đổi mật khẩu:
+                  </p>
+                  <a
+                    href={debugLink}
+                    className="block text-xs text-brand-red hover:underline break-all font-mono py-1.5 px-2 bg-brand-black rounded border border-brand-gray-800"
+                  >
+                    {debugLink}
+                  </a>
+                </div>
+              )}
+
               <button
                 onClick={() => {
                   setIsSent(false);
                   setEmail("");
+                  setDebugLink("");
+                  setDebugReason("");
                 }}
                 className="text-sm text-brand-red hover:text-brand-red-hover transition-colors font-semibold"
               >

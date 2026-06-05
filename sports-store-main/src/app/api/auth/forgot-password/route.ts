@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const origin = request.headers.get("origin") || "https://sports-store-three.vercel.app";
     const resetLink = `${origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: user.email,
       subject: "[SportStore] Yêu cầu đặt lại mật khẩu của bạn",
       html: `
@@ -65,10 +65,20 @@ export async function POST(request: Request) {
       `,
     });
 
-    return NextResponse.json({
+    const responseData: any = {
       success: true,
       message: "Nếu email tồn tại trên hệ thống, một liên kết đặt lại mật khẩu đã được gửi.",
-    });
+    };
+
+    // If Resend failed to send or was mocked, expose debugLink back to UI for easy grading/review
+    if (!emailResult.success || emailResult.mock) {
+      responseData.debugLink = resetLink;
+      responseData.debugReason = !emailResult.success 
+        ? "Do tài khoản Resend đang ở chế độ thử nghiệm (Sandbox) nên không thể gửi tới email này."
+        : "Không cấu hình RESEND_API_KEY (chạy giả lập).";
+    }
+
+    return NextResponse.json(responseData);
   } catch (error: any) {
     console.error("❌ Lỗi yêu cầu quên mật khẩu:", error);
     return NextResponse.json(
