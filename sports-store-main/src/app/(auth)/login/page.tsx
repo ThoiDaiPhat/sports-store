@@ -27,7 +27,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error(result.error);
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          toast.error("Tài khoản chưa xác minh email. Đang chuyển hướng đến trang xác minh...");
+          setTimeout(() => {
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+          }, 1500);
+        } else {
+          toast.error(result.error);
+        }
       } else {
         toast.success("Đăng nhập thành công!");
         router.push("/");

@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 interface SendEmailArgs {
   to: string;
@@ -6,16 +6,15 @@ interface SendEmailArgs {
   html: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailArgs) {
-  const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM || "SportStore <no-reply@sportstore.com>";
+const resendApiKey = process.env.RESEND_API_KEY;
+const fromAddress = process.env.EMAIL_FROM || "SportStore <onboarding@resend.dev>";
 
-  if (!host || !user || !pass) {
+export async function sendEmail({ to, subject, html }: SendEmailArgs) {
+  // If no Resend API key configured, fall back to console log
+  if (!resendApiKey) {
     console.log("==================================================");
-    console.log(`📧 MOCK EMAIL SENT TO: ${to}`);
+    console.log(`📧 MOCK EMAIL (No RESEND_API_KEY configured)`);
+    console.log(`📧 TO: ${to}`);
     console.log(`📧 SUBJECT: ${subject}`);
     console.log(`📧 CONTENT:\n${html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()}`);
     console.log("==================================================");
@@ -23,28 +22,24 @@ export async function sendEmail({ to, subject, html }: SendEmailArgs) {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: {
-        user,
-        pass,
-      },
-    });
+    const resend = new Resend(resendApiKey);
 
-    const info = await transporter.sendMail({
-      from,
-      to,
+    const { data, error } = await resend.emails.send({
+      from: fromAddress,
+      to: [to],
       subject,
       html,
     });
 
-    console.log(`📧 EMAIL SENT: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    if (error) {
+      console.error("❌ Resend error:", error);
+      return { success: false, error };
+    }
+
+    console.log(`📧 EMAIL SENT via Resend: ${data?.id}`);
+    return { success: true, id: data?.id };
   } catch (error) {
     console.error("❌ Lỗi gửi email:", error);
-    // Return success: false, but don't crash the parent handler
     return { success: false, error };
   }
 }

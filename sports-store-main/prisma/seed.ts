@@ -12,12 +12,15 @@ async function main() {
   const hashedPassword = await bcrypt.hash("admin123", 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@sportstore.com" },
-    update: {},
+    update: {
+      emailVerified: true,
+    },
     create: {
       email: "admin@sportstore.com",
       password: hashedPassword,
       name: "Admin",
       role: "ADMIN",
+      emailVerified: true,
     },
   });
   console.log("✅ Tạo admin:", admin.email);
@@ -26,7 +29,9 @@ async function main() {
   const userPassword = await bcrypt.hash("user123", 12);
   const user = await prisma.user.upsert({
     where: { email: "user@sportstore.com" },
-    update: {},
+    update: {
+      emailVerified: true,
+    },
     create: {
       email: "user@sportstore.com",
       password: userPassword,
@@ -34,6 +39,7 @@ async function main() {
       role: "USER",
       phone: "0901234567",
       address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
+      emailVerified: true,
     },
   });
   console.log("✅ Tạo user:", user.email);
